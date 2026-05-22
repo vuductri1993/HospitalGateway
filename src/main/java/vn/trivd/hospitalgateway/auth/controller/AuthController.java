@@ -3,7 +3,9 @@ package vn.trivd.hospitalgateway.auth.controller;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.trivd.hospitalgateway.auth.dto.*;
 import vn.trivd.hospitalgateway.auth.service.*;
@@ -17,30 +19,24 @@ import java.util.Map;
 @RequestMapping("/auth")
 @Slf4j
 public class AuthController {
-    private final OtpService otpService;
-    private final EmailService emailService;
-    private final JwtIssuer jwtIssuer;
-    private final AuthService authService;
 
-    private final JwtSecretProvider jwtSecretProvider;
+    @Autowired
+    private EmailService emailService;
 
-    public AuthController(
-            OtpService otpService,
-            EmailService emailService,
-            JwtIssuer jwtIssuer,
-            AuthService authService,
-            JwtSecretProvider jwtSecretProvider
-    ) {
-        this.otpService = otpService;
-        this.emailService = emailService;
-        this.jwtIssuer = jwtIssuer;
-        this.authService = authService;
-        this.jwtSecretProvider = jwtSecretProvider;
-    }
+    @Autowired
+    private JwtIssuer jwtIssuer;
+
+    @Autowired
+    private AuthService authService;
+
+    @Autowired
+    private JwtSecretProvider jwtSecretProvider;
 
     @PostMapping("/register/request-otp")
-    public Map<String, Object> requestOtp(@Valid @RequestBody RegisterRequestOtpReq req) {
+    public ResponseObject requestOtp(@Valid @RequestBody RegisterRequestOtpReq req) {
+        log.info("Request OTP for {}", req.getEmail());
         authService.requestOtp(req);
+        log.info("Sent OTP for {}", req.getEmail());
         return Map.of("sent", true);
     }
 

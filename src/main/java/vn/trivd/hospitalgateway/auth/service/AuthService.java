@@ -12,6 +12,7 @@ import com.example.hospitalenities.entity.Role;
 import vn.trivd.hospitalgateway.auth.dto.LoginRes;
 import vn.trivd.hospitalgateway.auth.dto.RegisterCompleteReq;
 import vn.trivd.hospitalgateway.auth.dto.RegisterRequestOtpReq;
+import vn.trivd.hospitalgateway.auth.dto.ResponseObject;
 import vn.trivd.hospitalgateway.authz.Constants;
 import vn.trivd.hospitalgateway.repository.DoctorRepository;
 import vn.trivd.hospitalgateway.repository.PatientRepository;
@@ -134,7 +135,13 @@ public class AuthService {
         redis.opsForSet().remove(Constants.HOSPITAL_PATIENT_TOKEN_ + patientId, token);
     }
 
-    public void requestOtp(RegisterRequestOtpReq req) {
+    public ResponseObject requestOtp(RegisterRequestOtpReq req) {
+        ResponseObject response = new ResponseObject();
+        try {
+
+        } catch (Exception e) {
+
+        }
         String otp = otpService.generateOTP(6);
         otpService.storeRegisterOtp(req.getEmail(), otp);
         emailService.sendOtp(req.getEmail(), otp);
