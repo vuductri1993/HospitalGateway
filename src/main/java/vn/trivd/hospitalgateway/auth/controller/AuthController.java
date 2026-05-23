@@ -1,10 +1,13 @@
 package vn.trivd.hospitalgateway.auth.controller;
 
+import com.example.hospitalenities.util.JSONFactory;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.trivd.hospitalgateway.auth.dto.*;
@@ -24,38 +27,33 @@ public class AuthController {
     private EmailService emailService;
 
     @Autowired
-    private JwtIssuer jwtIssuer;
-
-    @Autowired
     private AuthService authService;
 
     @Autowired
     private JwtSecretProvider jwtSecretProvider;
 
     @PostMapping("/register/request-otp")
-    public ResponseObject requestOtp(@Valid @RequestBody RegisterRequestOtpReq req) {
-        log.info("Request OTP for {}", req.getEmail());
-        authService.requestOtp(req);
-        log.info("Sent OTP for {}", req.getEmail());
-        return Map.of("sent", true);
+    public ResponseEntity<?> requestOtp(@Valid @RequestBody RegisterRequestOtpReq request, HttpServletRequest httpServletRequest) {
+        log.info("[register request-otp] Request OTP for {}", request.getEmail());
+        ResponseObject responseObject = authService.requestOtp(request,httpServletRequest);
+        log.info("[register request-otp] Response OTP for {}", JSONFactory.toJson(responseObject));
+        return new ResponseEntity<>(responseObject, HttpStatus.OK);
     }
 
 
     @PostMapping("/register/verify-otp")
-    public Map<String, Object> verifyOtp(@Valid @RequestBody RegisterVerifyOtpReq req) {
-        boolean ok = authService.verifyOtp(req.getEmail(), req.getOtp());
-        if (!ok) return Map.of("verified", false);
-        String registrationToken = jwtIssuer.issueRegisterToken(req.getEmail());
-        return Map.of("verified", true, "registrationToken", registrationToken);
+    public ResponseEntity<?> verifyOtp(@Valid @RequestBody RegisterVerifyOtpReq req, HttpServletRequest httpServletRequest) {
+        log.info("[register verify-otp] Request OTP for {}", req.getEmail());
+        ResponseObject responseObject = authService.generateregistrationToken(req,httpServletRequest);
+        log.info("[register verify-otp] Response OTP for {}", req.getEmail());
+        return new ResponseEntity<>(responseObject, HttpStatus.OK);
     }
 
     @PostMapping("/register/complete")
-    public Map<String, Object> complete(@Valid @RequestBody RegisterCompleteReq req) {
-        // registerToken chỉ dùng nội bộ gateway, không ảnh hưởng backend JwtAuthFilter
-        // (nếu bạn muốn enforce thêm thì mình sẽ parse typ=REG tương tự trước)
-        Long userId = authService.completeRegistration(req);
-        emailService.sendAccountCreated(req.getEmail(), req.getEmail());
-        return Map.of("created", true, "userId", userId);
+    public ResponseEntity<?> complete(@Valid @RequestBody RegisterCompleteReq req) {
+        authService.completeRegistration(req);
+        /*emailService.sendAccountCreated(req.getEmail(), req.getEmail());*/
+        return null;
     }
 
     @PostMapping("/login")

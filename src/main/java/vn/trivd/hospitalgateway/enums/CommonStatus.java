@@ -3,8 +3,9 @@ package vn.trivd.hospitalgateway.enums;
 import org.apache.commons.lang3.StringUtils;
 
 public enum CommonStatus {
-    SUCCESS(200,"Thành công"),
-    UNSUCCESS(400,"Thất bại"),;
+    SUCCESS(1000,"Thành công"),
+    UNSUCCESS(1001,"Thất bại"),
+    DATA_INVALID(1002,"Dữ liu không hợp lệ"),;
     private String message;
     private int code;
 

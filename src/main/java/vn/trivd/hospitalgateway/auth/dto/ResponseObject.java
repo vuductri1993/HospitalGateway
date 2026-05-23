@@ -14,6 +14,14 @@ public class ResponseObject<T> {
         this.data = data;
     }
 
+    public T getData() {
+        return data;
+    }
+
+    public void setData(T data) {
+        this.data = data;
+    }
+
     public String getMessage() {
         return message;
     }
